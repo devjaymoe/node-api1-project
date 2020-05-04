@@ -33,19 +33,19 @@ server.get('/', (req, res) => {
 });
 
 server.post('/api/users', function(req, res) {
-    let newName = req.body;
-    newName.id = shortid.generate();
+    let newUser = req.body;
+    newUser.id = shortid.generate();
 
-    if (newName.name && newName.bio){
+    if (newUser.name && newUser.bio){
 
-        userNames.push(newName);
+        userNames.push(newUser);
 
-        res.status(201).json(newName)
+        res.status(201).json(newUser)
 
     } else {
 
         const errorMessage = { 
-            errorMessage: "Please provide name and bio for the user." 
+            message: "Please provide name and bio for the user." 
         }
 
         res.status(400).json(errorMessage)
@@ -84,21 +84,30 @@ server.delete('/api/users/:id', (req, res) => {
     // everything that comes from a url will be a string
     const id = req.params.id;
 
-    const here = userNames.find(user => user.id == id)
+    const user = userNames.find(user => user.id == id)
     
-    if (!here){
+    if (user){
+
+        userNames = userNames.filter(name => name.id !== id)
+
+        res.status(200).json(userNames);
+
+       
+    } else if (!user) {
 
         const errorMessage = { 
             message: "The user with the specified ID does not exist." 
         }
 
         res.status(404).json(errorMessage)
+
     } else {
 
-      // find the lesson on the array and remove it
-      userNames = userNames.filter(name => name.id !== id)
+        const errorMessage = { 
+            message: "The user could not be removed." 
+        }
 
-      res.status(200).json(userNames);
+        res.status(500).json(errorMessage)
     }
     
 });
@@ -109,10 +118,65 @@ server.patch('/api/users/:id', (req, res) => {
     const update = req.body
     // find user from array
     const user = userNames.find(name => name.id === id);
-    console.log(user)
-    Object.assign(user, update)
-    console.log(user)
-    res.status(201).json( user )
+
+    if (user) {
+
+        Object.assign(user, update)
+    
+        res.status(201).json( user )
+
+    } else if (!user) {
+
+        const errorMessage = { 
+            message: "The user with the specified ID does not exist." 
+        }
+
+        res.status(404).json(errorMessage)
+
+    } else {
+
+    }
+});
+
+server.put('/api/users/:id', (req, res) => {
+    const id = req.params.id;
+    // updated name
+    const update = req.body
+    // find user from array
+    const user = userNames.find(name => name.id === id);
+
+    if (user){
+        if (update.name && update.bio){
+
+            Object.assign(user, update)
+    
+            res.status(200).json( user )
+
+        } else {
+
+            const errorMessage = { 
+                message: "Please provide name and bio for the user." 
+            }
+    
+            res.status(400).json(errorMessage)
+
+        }
+    } else if (!user) {
+
+        const errorMessage = { 
+            message: "The user with the specified ID does not exist." 
+        }
+
+        res.status(404).json(errorMessage)
+    }
+    else {
+
+        const errorMessage = { 
+            message: "The user information could not be modified." 
+        }
+
+        res.status(500).json(errorMessage)
+    }
 });
 
 server.listen(8000, () => console.log('\n== API is up ==\n'));
