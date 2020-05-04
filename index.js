@@ -55,7 +55,18 @@ server.post('/api/users', function(req, res) {
 
 server.get('/api/users', function(req, res) {
     // return an array of lessons (id, name)
-    res.json(userNames);
+    if(userNames){
+
+        res.json(userNames);
+
+    } else {
+        
+        const errorMessage = { 
+            message: "The user information could not be retrieved." 
+        }
+
+        res.status(500).json(errorMessage)
+    }
 });
 
 
@@ -69,13 +80,20 @@ server.get('/api/users/:id', (req, res) => {
 
         res.status(201).json(user);
 
-    } else {
+    } else if (!user) {
 
         const errorMessage = { 
             message: "The user with the specified ID does not exist." 
         }
 
         res.status(404).json(errorMessage)
+    } else {
+
+        const errorMessage = { 
+            message: "The user information could not be retrieved." 
+        }
+
+        res.status(500).json(errorMessage)
     }
 
 });
@@ -92,7 +110,6 @@ server.delete('/api/users/:id', (req, res) => {
 
         res.status(200).json(userNames);
 
-       
     } else if (!user) {
 
         const errorMessage = { 
@@ -135,6 +152,11 @@ server.patch('/api/users/:id', (req, res) => {
 
     } else {
 
+        const errorMessage = { 
+            message: "The user information could not be modified." 
+        }
+
+        res.status(500).json(errorMessage)
     }
 });
 
